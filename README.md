@@ -8,14 +8,15 @@ Una aplicación web interactiva tipo "Punto de Venta" (POS) para calcular presup
 - **Arquitectura Ligera:** Desarrollado en Vanilla JS (ES6) y Tailwind CSS. Sin dependencias complejas ni tiempos de compilación.
 
 ## 🧮 Tabla de Precios
+
 | Color | Precio (LP) |
-|---|---|
-| Rojo | 80 |
-| Verde | 60 |
-| Amarillo | 40 |
-| Azul | 20 |
-| Naranja | 10 |
-| Blanco | Gratis |
+|-------|------------:|
+| 🔴 Rojo | **80** |
+| 🟢 Verde | **60** |
+| 🟡 Amarillo | **40** |
+| 🔵 Azul | **20** |
+| 🟠 Naranja | **10** |
+| ⚪ Blanco | **Gratis** |
 
 ## 🛠️ Despliegue en GitHub Pages
 Este proyecto está optimizado para ser desplegado instantáneamente en GitHub Pages:
