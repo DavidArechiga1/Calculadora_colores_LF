@@ -184,10 +184,40 @@
       transform: translateY(-2px);
     }
 
-    /* Estilos para el nuevo botón de reiniciar */
+    /* Estilos para los botones de acción */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 14px;
+      background: var(--total-bg);
+      color: var(--total-text);
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-save:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .btn-save:active {
+      transform: scale(0.98);
+    }
+
     .btn-reset {
       width: 100%;
-      margin-top: 15px;
       padding: 14px;
       background: transparent;
       border: 2px solid var(--border-color);
@@ -203,13 +233,112 @@
       gap: 10px;
     }
     .btn-reset:hover {
-      background: #ef4444; /* Rojo vibrante */
+      background: #ef4444;
       color: white;
       border-color: #ef4444;
       box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
     .btn-reset:active {
       transform: scale(0.98);
+    }
+
+    /* Estilos para el Historial */
+    #historial-container {
+      display: none; 
+    }
+    
+    .history-header-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .history-header-title h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    
+    .history-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-clear-history {
+      background: transparent;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+    .btn-clear-history:hover {
+      transform: scale(1.1);
+    }
+
+    .btn-export-csv {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-export-csv:hover {
+      background: #059669;
+      transform: scale(1.05);
+    }
+    .btn-export-csv:active {
+      transform: scale(0.95);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+    
+    .history-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+    .history-item {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .history-item-top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 5px;
+    }
+    
+    .history-total {
+      color: var(--total-bg);
+      font-size: 1.1rem;
+    }
+
+    .history-details {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
     
     footer {
@@ -245,13 +374,10 @@
 
 <div class="container">
   <div class="header">
-    <h1>Calculadora de Colores
-        <br> LibroFest
-    </h1>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeIcon" title="Cambiar tema">🌙</button>
+    <h1>Calculadora de Colores<br>LibroFest</h1>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeIcon" title="Cambiar tema">☀️</button>
   </div>
   
-  <!-- Rojo -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#ef4444;"></span> Rojo (80 LP)</div>
     <div class="controls">
@@ -261,7 +387,6 @@
     </div>
   </div>
 
-  <!-- Verde -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#22c55e;"></span> Verde (60 LP)</div>
     <div class="controls">
@@ -271,7 +396,6 @@
     </div>
   </div>
 
-  <!-- Amarillo -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#eab308;"></span> Amarillo (40 LP)</div>
     <div class="controls">
@@ -281,7 +405,6 @@
     </div>
   </div>
 
-  <!-- Azul -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#3b82f6;"></span> Azul (20 LP)</div>
     <div class="controls">
@@ -291,7 +414,6 @@
     </div>
   </div>
 
-  <!-- Naranja -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#f97316;"></span> Naranja (10 LP)</div>
     <div class="controls">
@@ -301,7 +423,6 @@
     </div>
   </div>
 
-  <!-- Blanco -->
   <div class="color-row">
     <div class="color-info"><span class="badge" style="background:#ffffff; border-color:#d1d5db;"></span> Blanco (Gratis)</div>
     <div class="controls">
@@ -315,34 +436,69 @@
     Total: <span id="total">0</span> LP
   </div>
 
-  <!-- Botón de reinicio añadido -->
-  <button class="btn-reset" onclick="reiniciarCalculadora()">
-    🔄 Reiniciar Contador
-  </button>
+  <div class="action-buttons">
+    <button class="btn-save" onclick="guardarCalculo()"> ✅ Confirmar y Guardar Venta</button>
+    <button class="btn-reset" onclick="reiniciarCalculadora()">🔄 Reiniciar Contador</button>
+  </div>
+</div>
+
+<div class="container" id="historial-container">
+  <div class="history-header-title">
+    <!-- Ajuste 1 y 3: Flexbox para alinear y color de icono a currentColor -->
+    <h2 style="display: flex; align-items: center; gap: 8px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw-clock-icon lucide-rotate-ccw-clock">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+        <path d="M12 7v5l4 2"/>
+      </svg>
+       Historial de Ventas
+    </h2>
+    <div class="history-actions">
+      
+      <!-- Ajuste 2 y 3: Icono verde para CSV y alineación de texto -->
+      <button class="btn-export-csv" onclick="exportarCSV()" title="Exportar a Excel/CSV" style="display: flex; align-items: center; gap: 6px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        CSV
+      </button>
+
+      <!-- Ajuste 2: Bote de basura en color rojo -->
+      <button class="btn-clear-history" onclick="borrarHistorial()" title="Borrar todo el historial" style="display: flex; align-items: center; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+  <div class="history-list" id="lista-historial"></div>
 </div>
 
 <footer>
-  <a href="https://www.facebook.com/LibroFestival" target="_blank" rel="noopener noreferrer">Librofest </a>  | Todos los derechos reservados
+  <a href="https://www.facebook.com/LibroFestival" target="_blank" rel="noopener noreferrer">Librofest</a>  | Todos los derechos reservados
 </footer>
 
 <script>
-  // Lógica principal de cálculo
+  const precios = { rojo: 80, verde: 60, amarillo: 40, azul: 20, naranja: 10, blanco: 0 };
+  let historial = [];
+
   function calcular() {
-    const precios = { rojo: 80, verde: 60, amarillo: 40, azul: 20, naranja: 10, blanco: 0 };
     let total = 0;
-    
     for (let color in precios) {
       let input = document.getElementById(color);
-      // Evitar valores negativos si el usuario escribe manualmente
       if (input.value < 0 || input.value === '') input.value = 0; 
       let cant = parseInt(input.value) || 0;
       total += cant * precios[color];
     }
-    
     document.getElementById('total').textContent = total;
   }
 
-  // Interacciones con los botones (+) y (-)
   function modificarCantidad(color, cantidad) {
     const input = document.getElementById(color);
     let valorActual = parseInt(input.value) || 0;
@@ -354,20 +510,160 @@
     }
   }
 
-  // NUEVA FUNCIÓN: Reiniciar valores a 0
   function reiniciarCalculadora() {
-    const colores = ['rojo', 'verde', 'amarillo', 'azul', 'naranja', 'blanco'];
-    
-    // Recorremos los colores y ponemos el input en 0
-    colores.forEach(color => {
+    for (let color in precios) {
       document.getElementById(color).value = 0;
-    });
-    
-    // Volvemos a calcular para que el total se actualice a 0
+    }
     calcular();
   }
 
-  // Sistema de Modo Oscuro / Claro
+  // NUEVO: Guardar cantidades exactas y separar fecha/hora
+  function guardarCalculo() {
+    let detalles = [];
+    let total = 0;
+    let tieneItems = false;
+    
+    // Objeto para guardar la cantidad específica de cada color vendido
+    let cantidades = { rojo: 0, verde: 0, amarillo: 0, azul: 0, naranja: 0, blanco: 0 };
+
+    for (let color in precios) {
+      let input = document.getElementById(color);
+      let cant = parseInt(input.value) || 0;
+      
+      if (cant > 0) {
+        tieneItems = true;
+        total += cant * precios[color];
+        cantidades[color] = cant; // Guardamos el número
+        
+        let nombreColor = color.charAt(0).toUpperCase() + color.slice(1);
+        detalles.push(`${cant}x ${nombreColor}`);
+      }
+    }
+
+    if (!tieneItems) {
+      alert("No hay artículos seleccionados para guardar.");
+      return;
+    }
+
+    // Obtener la fecha y hora por separado en el formato deseado
+    const ahora = new Date();
+    const fechaIso = ahora.getFullYear() + "-" + String(ahora.getMonth() + 1).padStart(2, '0') + "-" + String(ahora.getDate()).padStart(2, '0');
+    const horaIso = String(ahora.getHours()).padStart(2, '0') + ":" + String(ahora.getMinutes()).padStart(2, '0');
+
+    const nuevoRegistro = {
+      id: Date.now(),
+      fecha: ahora.toLocaleString('es-MX'), // Usado para mostrar visualmente en pantalla
+      fechaExport: fechaIso,                // Usado para la columna Fecha de Excel
+      horaExport: horaIso,                  // Usado para la columna Hora de Excel
+      total: total,
+      detalles: detalles.join(' • '),
+      cantidades: cantidades                // Usado para separar las columnas en Excel
+    };
+
+    historial.unshift(nuevoRegistro);
+    localStorage.setItem('librofest_historial', JSON.stringify(historial));
+    renderizarHistorial();
+    reiniciarCalculadora();
+  }
+
+  function renderizarHistorial() {
+    const contenedor = document.getElementById('historial-container');
+    const lista = document.getElementById('lista-historial');
+    
+    if (historial.length === 0) {
+      contenedor.style.display = 'none';
+      return;
+    }
+    
+    contenedor.style.display = 'block';
+    lista.innerHTML = ''; 
+    
+    historial.forEach(item => {
+      lista.innerHTML += `
+        <div class="history-item">
+          <div class="history-item-top">
+            <span>🗓️ ${item.fecha}</span>
+            <span class="history-total">${item.total} LP</span>
+          </div>
+          <div class="history-details">
+            📦 ${item.detalles}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function borrarHistorial() {
+    if(confirm("¿Estás seguro de que deseas borrar todo el historial?")) {
+      historial = [];
+      localStorage.removeItem('librofest_historial');
+      renderizarHistorial();
+    }
+  }
+
+  // NUEVO: Exportación a CSV en columnas independientes
+  function exportarCSV() {
+    if (historial.length === 0) {
+      alert("No hay historial para exportar.");
+      return;
+    }
+
+    // Cabeceras exactas (separadas por comas)
+    let csvContent = "Fecha,Hora,Rojo,Verde,Amarillo,Azul,Naranja,Blanco,Total LP\n";
+
+    historial.forEach(item => {
+      let fecha = "";
+      let hora = "";
+      let c = { rojo: 0, verde: 0, amarillo: 0, azul: 0, naranja: 0, blanco: 0 };
+
+      // Si es un registro guardado con el formato nuevo:
+      if (item.fechaExport && item.horaExport && item.cantidades) {
+        fecha = item.fechaExport;
+        hora = item.horaExport;
+        c = item.cantidades;
+      } else {
+        // Fallback: Por si hay registros viejos sin borrar antes de la actualización
+        let partes = item.fecha.split(',');
+        if(partes.length >= 2){
+            fecha = partes[0].trim();
+            hora = partes[1].trim();
+        } else {
+            let partesEspacio = item.fecha.split(' ');
+            fecha = partesEspacio[0] || item.fecha;
+            hora = partesEspacio[1] || "";
+        }
+        
+        // Tratar de extraer cantidades del texto ("2x Rojo • 1x Verde")
+        if (item.detalles) {
+          let detArray = item.detalles.split('•');
+          detArray.forEach(txt => {
+            let info = txt.trim().split('x '); 
+            if (info.length === 2) {
+              let qty = parseInt(info[0]);
+              let col = info[1].toLowerCase();
+              if(c[col] !== undefined) c[col] = qty;
+            }
+          });
+        }
+      }
+
+      // Añadimos la fila separada por comas
+      csvContent += `${fecha},${hora},${c.rojo},${c.verde},${c.amarillo},${c.azul},${c.naranja},${c.blanco},${item.total}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    const nombreArchivo = `Ventas_LibroFest_${new Date().toLocaleDateString('es-MX').replace(/\//g, '-')}.csv`;
+    link.setAttribute("download", nombreArchivo);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   function toggleTheme() {
     const doc = document.documentElement;
     const themeIcon = document.getElementById('themeIcon');
@@ -383,11 +679,22 @@
     }
   }
 
-  // Cargar preferencia guardada del usuario
   window.onload = () => {
-    if (localStorage.getItem('theme') === 'dark') {
+    const savedTheme = localStorage.getItem('theme');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    if (savedTheme === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      themeIcon.textContent = '🌙';
+    } else {
       document.documentElement.setAttribute('data-theme', 'dark');
-      document.getElementById('themeIcon').textContent = '☀️';
+      themeIcon.textContent = '☀️';
+    }
+
+    const historialGuardado = localStorage.getItem('librofest_historial');
+    if (historialGuardado) {
+      historial = JSON.parse(historialGuardado);
+      renderizarHistorial();
     }
   }
 </script>
