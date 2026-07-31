@@ -179,22 +179,108 @@ input[type="number"]:focus {
   border-color: var(--total-bg);
 }
 
+/* ---------- Descuento ---------- */
+.discount-row {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discount-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.discount-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip-descuento {
+  background: var(--btn-bg);
+  color: var(--text-main);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.1s, transform 0.15s;
+}
+.chip-descuento:hover {
+  background: var(--btn-hover);
+  transform: translateY(-1px);
+}
+.chip-descuento:active {
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
+  transform: translateY(0);
+}
+.chip-descuento.activo {
+  background: var(--total-bg);
+  color: var(--total-text);
+}
+
+.discount-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  background: var(--btn-bg);
+  border-radius: 10px;
+  padding: 0 10px;
+}
+
+.discount-input-wrap input[type="number"] {
+  width: 55px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--text-main);
+}
+.discount-input-wrap input[type="number"]:focus {
+  outline: none;
+}
+
+.discount-percent {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
 /* ---------- Total ---------- */
 .total-box {
   margin-top: 24px;
   background: var(--total-bg);
   color: var(--total-text);
-  padding: 20px;
+  padding: 18px 20px;
   border-radius: 12px;
   text-align: center;
-  font-size: 1.6rem;
-  font-weight: 800;
   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
   transition: transform 0.2s ease, background-color 0.3s ease;
   user-select: none;
 }
 .total-box:hover {
   transform: translateY(-2px);
+}
+
+.total-subtotal {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.total-final {
+  font-size: 1.6rem;
+  font-weight: 800;
 }
 
 /* ---------- Botones de acción ---------- */
@@ -359,6 +445,12 @@ input[type="number"]:focus {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.history-discount {
+  color: #10b981;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .btn-delete-item {
