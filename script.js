@@ -27,6 +27,9 @@ let historial = [];
 
 const dom = {
   total: () => document.getElementById('total'),
+  subtotal: () => document.getElementById('subtotal'),
+  descuentoLp: () => document.getElementById('descuento-lp'),
+  descuentoInput: () => document.getElementById('descuento'),
   themeIcon: () => document.getElementById('themeIcon'),
   historialContainer: () => document.getElementById('historial-container'),
   listaHistorial: () => document.getElementById('lista-historial'),
@@ -38,16 +41,54 @@ const dom = {
    ========================================================================== */
 
 const Calculadora = {
-  /** Recalcula el total en base a los valores actuales de los inputs. */
-  calcular() {
-    let total = 0;
+  /** Lee el subtotal (sin descuento) en base a los inputs de colores. */
+  calcularSubtotal() {
+    let subtotal = 0;
     for (const color in PRECIOS) {
       const input = dom.input(color);
       if (input.value < 0 || input.value === '') input.value = 0;
       const cantidad = parseInt(input.value, 10) || 0;
-      total += cantidad * PRECIOS[color];
+      subtotal += cantidad * PRECIOS[color];
     }
+    return subtotal;
+  },
+
+  /** Lee el % de descuento del input, forzándolo a un rango válido de 0-100. */
+  leerPorcentajeDescuento() {
+    const input = dom.descuentoInput();
+    let porcentaje = parseFloat(input.value);
+    if (isNaN(porcentaje) || porcentaje < 0) porcentaje = 0;
+    if (porcentaje > 100) porcentaje = 100;
+    input.value = porcentaje;
+    return porcentaje;
+  },
+
+  /** Recalcula subtotal, descuento y total final, y actualiza el DOM. */
+  calcular() {
+    const subtotal = this.calcularSubtotal();
+    const porcentaje = this.leerPorcentajeDescuento();
+    const descuentoLp = Math.round(subtotal * (porcentaje / 100));
+    const total = subtotal - descuentoLp;
+
+    dom.subtotal().textContent = subtotal;
+    dom.descuentoLp().textContent = descuentoLp;
     dom.total().textContent = total;
+
+    this._marcarChipActivo(porcentaje);
+  },
+
+  /** Resalta el chip de descuento rápido (0/10/20/50%) que coincide con el valor actual. */
+  _marcarChipActivo(porcentaje) {
+    document.querySelectorAll('.chip-descuento').forEach((chip) => {
+      const valorChip = parseFloat(chip.textContent);
+      chip.classList.toggle('activo', valorChip === porcentaje);
+    });
+  },
+
+  /** Aplica un % de descuento predefinido (botones rápidos). */
+  aplicarDescuentoRapido(porcentaje) {
+    dom.descuentoInput().value = porcentaje;
+    this.calcular();
   },
 
   /** Incrementa o decrementa la cantidad de un color (botones +/-). */
@@ -62,26 +103,27 @@ const Calculadora = {
     }
   },
 
-  /** Regresa todos los contadores a cero. */
+  /** Regresa todos los contadores y el descuento a cero. */
   reiniciar() {
     for (const color in PRECIOS) {
       dom.input(color).value = 0;
     }
+    dom.descuentoInput().value = 0;
     this.calcular();
   },
 
-  /** Lee los inputs actuales y devuelve { cantidades, detalles, total, tieneItems }. */
+  /** Lee los inputs actuales y devuelve { cantidades, detalles, subtotal, porcentaje, descuentoLp, total, tieneItems }. */
   leerSeleccionActual() {
     const cantidades = { rojo: 0, verde: 0, amarillo: 0, azul: 0, naranja: 0, blanco: 0 };
     const detalles = [];
-    let total = 0;
+    let subtotal = 0;
     let tieneItems = false;
 
     for (const color in PRECIOS) {
       const cantidad = parseInt(dom.input(color).value, 10) || 0;
       if (cantidad > 0) {
         tieneItems = true;
-        total += cantidad * PRECIOS[color];
+        subtotal += cantidad * PRECIOS[color];
         cantidades[color] = cantidad;
 
         const nombreColor = color.charAt(0).toUpperCase() + color.slice(1);
@@ -89,7 +131,19 @@ const Calculadora = {
       }
     }
 
-    return { cantidades, detalles: detalles.join(' • '), total, tieneItems };
+    const porcentaje = this.leerPorcentajeDescuento();
+    const descuentoLp = Math.round(subtotal * (porcentaje / 100));
+    const total = subtotal - descuentoLp;
+
+    return {
+      cantidades,
+      detalles: detalles.join(' • '),
+      subtotal,
+      porcentaje,
+      descuentoLp,
+      total,
+      tieneItems,
+    };
   },
 };
 
@@ -132,6 +186,9 @@ const Historial = {
       fecha: ahora.toLocaleString('es-MX'),
       fechaExport: fechaIso,
       horaExport: horaIso,
+      subtotal: seleccion.subtotal,
+      porcentajeDescuento: seleccion.porcentaje,
+      descuentoLp: seleccion.descuentoLp,
       total: seleccion.total,
       detalles: seleccion.detalles,
       cantidades: seleccion.cantidades,
@@ -171,6 +228,11 @@ const Historial = {
   },
 
   _renderItem(item) {
+    const tieneDescuento = item.porcentajeDescuento && item.porcentajeDescuento > 0;
+    const lineaDescuento = tieneDescuento
+      ? `<div class="history-discount">🏷️ Descuento ${item.porcentajeDescuento}% (-${item.descuentoLp} LP) · Subtotal ${item.subtotal} LP</div>`
+      : '';
+
     return `
       <div class="history-item" id="registro-${item.id}">
         <div class="history-item-top">
@@ -189,6 +251,7 @@ const Historial = {
         <div class="history-details">
           📦 ${item.detalles}
         </div>
+        ${lineaDescuento}
       </div>
     `;
   },
@@ -205,11 +268,15 @@ const Exportador = {
       return;
     }
 
-    let csv = 'Fecha,Hora,Rojo,Verde,Amarillo,Azul,Naranja,Blanco,Total LP\n';
+    let csv =
+      'Fecha,Hora,Rojo,Verde,Amarillo,Azul,Naranja,Blanco,Subtotal LP,Descuento %,Descuento LP,Total LP\n';
 
     historial.forEach((item) => {
       const { fecha, hora, cantidades } = this._extraerDatosFila(item);
-      csv += `${fecha},${hora},${cantidades.rojo},${cantidades.verde},${cantidades.amarillo},${cantidades.azul},${cantidades.naranja},${cantidades.blanco},${item.total}\n`;
+      const subtotal = item.subtotal ?? item.total;
+      const porcentaje = item.porcentajeDescuento ?? 0;
+      const descuentoLp = item.descuentoLp ?? 0;
+      csv += `${fecha},${hora},${cantidades.rojo},${cantidades.verde},${cantidades.amarillo},${cantidades.azul},${cantidades.naranja},${cantidades.blanco},${subtotal},${porcentaje},${descuentoLp},${item.total}\n`;
     });
 
     this._descargarCSV(csv);
@@ -313,6 +380,10 @@ function modificarCantidad(color, delta) {
 
 function reiniciarCalculadora() {
   Calculadora.reiniciar();
+}
+
+function aplicarDescuentoRapido(porcentaje) {
+  Calculadora.aplicarDescuentoRapido(porcentaje);
 }
 
 function guardarCalculo() {
