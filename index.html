@@ -68,8 +68,29 @@
     </div>
   </div>
 
+  <div class="discount-row">
+    <div class="discount-label">
+      🏷️ Descuento
+    </div>
+    <div class="discount-controls">
+      <button class="chip-descuento" onclick="aplicarDescuentoRapido(0)">0%</button>
+      <button class="chip-descuento" onclick="aplicarDescuentoRapido(10)">10%</button>
+      <button class="chip-descuento" onclick="aplicarDescuentoRapido(20)">20%</button>
+      <button class="chip-descuento" onclick="aplicarDescuentoRapido(50)">50%</button>
+      <div class="discount-input-wrap">
+        <input type="number" min="0" max="100" value="0" id="descuento" onchange="calcular()" oninput="calcular()">
+        <span class="discount-percent">%</span>
+      </div>
+    </div>
+  </div>
+
   <div class="total-box">
-    Total: <span id="total">0</span> LP
+    <div class="total-subtotal" id="wrap-subtotal">
+      Subtotal: <span id="subtotal">0</span> LP &nbsp;•&nbsp; Descuento: <span id="descuento-lp">0</span> LP
+    </div>
+    <div class="total-final">
+      Total: <span id="total">0</span> LP
+    </div>
   </div>
 
   <div class="action-buttons">
