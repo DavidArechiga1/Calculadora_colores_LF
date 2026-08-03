@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,13 @@
 <div class="container">
   <div class="header">
     <h1>Calculadora de Colores<br>LibroFest</h1>
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeIcon" title="Cambiar tema">☀️</button>
+    <div class="payment-toggle-wrap">
+      <span class="payment-toggle-label">Método de pago</span>
+      <button class="payment-toggle" onclick="togglePaymentMethod()" id="metodoPagoToggle" title="Método de pago">
+        <span id="metodoPagoIcono">📖</span>
+        <span id="metodoPagoTexto">LP</span>
+      </button>
+    </div>
   </div>
 
   <div class="color-row">
@@ -129,6 +135,8 @@
       </button>
     </div>
   </div>
+  <div class="summary-box" id="resumen-historial"></div>
+
   <div class="history-list" id="lista-historial"></div>
 </div>
 
