@@ -18,7 +18,16 @@ const PRECIOS = {
 
 const STORAGE_KEYS = {
   historial: 'librofest_historial',
-  theme: 'theme',
+  metodoPago: 'librofest_metodo_pago',
+};
+
+const COLOR_HEX = {
+  rojo: '#ef4444',
+  verde: '#22c55e',
+  amarillo: '#eab308',
+  azul: '#3b82f6',
+  naranja: '#f97316',
+  blanco: '#ffffff',
 };
 
 let historial = [];
@@ -30,9 +39,12 @@ const dom = {
   subtotal: () => document.getElementById('subtotal'),
   descuentoLp: () => document.getElementById('descuento-lp'),
   descuentoInput: () => document.getElementById('descuento'),
-  themeIcon: () => document.getElementById('themeIcon'),
+  metodoPagoToggle: () => document.getElementById('metodoPagoToggle'),
+  metodoPagoIcono: () => document.getElementById('metodoPagoIcono'),
+  metodoPagoTexto: () => document.getElementById('metodoPagoTexto'),
   historialContainer: () => document.getElementById('historial-container'),
   listaHistorial: () => document.getElementById('lista-historial'),
+  resumenHistorial: () => document.getElementById('resumen-historial'),
   input: (color) => document.getElementById(color),
 };
 
@@ -192,6 +204,7 @@ const Historial = {
       total: seleccion.total,
       detalles: seleccion.detalles,
       cantidades: seleccion.cantidades,
+      metodoPago: MetodoPago.actual,
     };
 
     historial.unshift(nuevoRegistro);
@@ -224,7 +237,71 @@ const Historial = {
     }
 
     contenedor.style.display = 'block';
+    dom.resumenHistorial().innerHTML = this._renderResumen();
     lista.innerHTML = historial.map((item) => this._renderItem(item)).join('');
+  },
+
+  /** Suma las cantidades vendidas por color, el total en LP y el desglose por método de pago. */
+  calcularResumen() {
+    const totalesPorColor = { rojo: 0, verde: 0, amarillo: 0, azul: 0, naranja: 0, blanco: 0 };
+    const porMetodo = {
+      LP: { count: 0, totalLp: 0 },
+      MXN: { count: 0, totalLp: 0 },
+    };
+    let totalLp = 0;
+    let totalLibros = 0;
+
+    historial.forEach((item) => {
+      const cantidades = item.cantidades || {};
+      for (const color in totalesPorColor) {
+        const cantidad = cantidades[color] || 0;
+        totalesPorColor[color] += cantidad;
+        totalLibros += cantidad;
+      }
+      totalLp += item.total || 0;
+
+      const metodo = item.metodoPago === 'MXN' ? 'MXN' : 'LP';
+      porMetodo[metodo].count += 1;
+      porMetodo[metodo].totalLp += item.total || 0;
+    });
+
+    return { totalesPorColor, totalLp, totalLibros, porMetodo };
+  },
+
+  _renderResumen() {
+    const { totalesPorColor, totalLp, totalLibros, porMetodo } = this.calcularResumen();
+
+    const itemsColores = Object.keys(PRECIOS)
+      .map((color) => {
+        const cantidad = totalesPorColor[color];
+        const nombreColor = color.charAt(0).toUpperCase() + color.slice(1);
+        return `
+          <div class="summary-color-item">
+            <span class="badge" style="background:${COLOR_HEX[color]};"></span>
+            ${nombreColor}: <span class="summary-color-count">${cantidad}</span>
+          </div>
+        `;
+      })
+      .join('');
+
+    return `
+      <div class="summary-title">📊 Resumen general</div>
+      <div class="summary-colors">${itemsColores}</div>
+      <div class="summary-methods">
+        <div class="summary-method-item lp">
+          📖 Pagado con LP: <strong>${porMetodo.LP.totalLp} LP</strong>
+          <span class="summary-method-count">(${porMetodo.LP.count} venta${porMetodo.LP.count === 1 ? '' : 's'})</span>
+        </div>
+        <div class="summary-method-item mxn">
+          💵 Pagado con MXN: <strong>${porMetodo.MXN.totalLp} LP</strong>
+          <span class="summary-method-count">(${porMetodo.MXN.count} venta${porMetodo.MXN.count === 1 ? '' : 's'})</span>
+        </div>
+      </div>
+      <div class="summary-footer">
+        <span>📚 Total de libros vendidos: ${totalLibros}</span>
+        <span class="summary-total-lp">${totalLp} LP</span>
+      </div>
+    `;
   },
 
   _renderItem(item) {
@@ -232,6 +309,10 @@ const Historial = {
     const lineaDescuento = tieneDescuento
       ? `<div class="history-discount">🏷️ Descuento ${item.porcentajeDescuento}% (-${item.descuentoLp} LP) · Subtotal ${item.subtotal} LP</div>`
       : '';
+
+    const metodoPago = item.metodoPago || 'LP';
+    const esMxn = metodoPago === 'MXN';
+    const etiquetaPago = `<span class="history-payment-badge ${esMxn ? 'mxn' : 'lp'}">${esMxn ? '💵 MXN' : '📖 LP'}</span>`;
 
     return `
       <div class="history-item" id="registro-${item.id}">
@@ -249,7 +330,7 @@ const Historial = {
           </div>
         </div>
         <div class="history-details">
-          📦 ${item.detalles}
+          📦 ${item.detalles} &nbsp; ${etiquetaPago}
         </div>
         ${lineaDescuento}
       </div>
@@ -269,14 +350,15 @@ const Exportador = {
     }
 
     let csv =
-      'Fecha,Hora,Rojo,Verde,Amarillo,Azul,Naranja,Blanco,Subtotal LP,Descuento %,Descuento LP,Total LP\n';
+      'Fecha,Hora,Rojo,Verde,Amarillo,Azul,Naranja,Blanco,Subtotal LP,Descuento %,Descuento LP,Total LP,Método de Pago\n';
 
     historial.forEach((item) => {
       const { fecha, hora, cantidades } = this._extraerDatosFila(item);
       const subtotal = item.subtotal ?? item.total;
       const porcentaje = item.porcentajeDescuento ?? 0;
       const descuentoLp = item.descuentoLp ?? 0;
-      csv += `${fecha},${hora},${cantidades.rojo},${cantidades.verde},${cantidades.amarillo},${cantidades.azul},${cantidades.naranja},${cantidades.blanco},${subtotal},${porcentaje},${descuentoLp},${item.total}\n`;
+      const metodoPago = item.metodoPago || 'LP';
+      csv += `${fecha},${hora},${cantidades.rojo},${cantidades.verde},${cantidades.amarillo},${cantidades.azul},${cantidades.naranja},${cantidades.blanco},${subtotal},${porcentaje},${descuentoLp},${item.total},${metodoPago}\n`;
     });
 
     this._descargarCSV(csv);
@@ -337,32 +419,31 @@ const Exportador = {
 };
 
 /* ==========================================================================
-   Módulo: Tema (claro / oscuro)
+   Módulo: Método de pago (LP / MXN)
    ========================================================================== */
 
-const Tema = {
-  aplicar(theme) {
-    const doc = document.documentElement;
-    const icon = dom.themeIcon();
+const MetodoPago = {
+  actual: 'LP',
 
-    if (theme === 'dark') {
-      doc.setAttribute('data-theme', 'dark');
-      icon.textContent = '☀️';
-    } else {
-      doc.removeAttribute('data-theme');
-      icon.textContent = '🌙';
-    }
-    localStorage.setItem(STORAGE_KEYS.theme, theme);
+  aplicar(metodo) {
+    this.actual = metodo;
+    const boton = dom.metodoPagoToggle();
+    const esMxn = metodo === 'MXN';
+
+    boton.classList.toggle('modo-mxn', esMxn);
+    dom.metodoPagoIcono().textContent = esMxn ? '💵' : '📖';
+    dom.metodoPagoTexto().textContent = esMxn ? 'MXN' : 'LP';
+
+    localStorage.setItem(STORAGE_KEYS.metodoPago, metodo);
   },
 
   alternar() {
-    const esOscuro = document.documentElement.getAttribute('data-theme') === 'dark';
-    this.aplicar(esOscuro ? 'light' : 'dark');
+    this.aplicar(this.actual === 'LP' ? 'MXN' : 'LP');
   },
 
   cargarInicial() {
-    const guardado = localStorage.getItem(STORAGE_KEYS.theme);
-    this.aplicar(guardado === 'light' ? 'light' : 'dark');
+    const guardado = localStorage.getItem(STORAGE_KEYS.metodoPago);
+    this.aplicar(guardado === 'MXN' ? 'MXN' : 'LP');
   },
 };
 
@@ -403,8 +484,8 @@ function exportarCSV() {
   Exportador.exportarCSV();
 }
 
-function toggleTheme() {
-  Tema.alternar();
+function togglePaymentMethod() {
+  MetodoPago.alternar();
 }
 
 /* ==========================================================================
@@ -412,7 +493,7 @@ function toggleTheme() {
    ========================================================================== */
 
 window.addEventListener('DOMContentLoaded', () => {
-  Tema.cargarInicial();
+  MetodoPago.cargarInicial();
   Historial.cargar();
   Calculadora.calcular();
 });
